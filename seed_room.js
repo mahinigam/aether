@@ -2,7 +2,7 @@ const { Client } = require('pg');
 
 const client = new Client({
     user: process.env.DB_USER || 'postgres',
-    host: process.env.DB_HOST || 'postgres',
+    host: process.env.DB_HOST || 'chat_postgres', // Updated to match Docker service name
     database: process.env.DB_NAME || 'chat_platform',
     password: process.env.DB_PASSWORD || 'postgres',
     port: 5432,
