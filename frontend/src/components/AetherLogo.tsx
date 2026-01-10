@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logoSvg from '../assets/logo.svg';
 
-interface CosmicLogoProps {
+interface AetherLogoProps {
     /** Size variant: 'sm' for sidebar, 'md' for headers, 'lg' for login/register */
     size?: 'sm' | 'md' | 'lg';
     /** Optional className for additional styling */
@@ -10,10 +10,10 @@ interface CosmicLogoProps {
 }
 
 /**
- * CosmicLogo - Displays the Aether logo with hover-activated distortion effect
+ * AetherLogo - Displays the Aether logo with hover-activated distortion effect
  * Uses SVG displacement mapping to create a gravitational lensing illusion ON HOVER ONLY
  */
-const CosmicLogo: React.FC<CosmicLogoProps> = ({
+const AetherLogo: React.FC<AetherLogoProps> = ({
     size = 'md',
     className = '',
 }) => {
@@ -30,7 +30,7 @@ const CosmicLogo: React.FC<CosmicLogoProps> = ({
     const { height, width } = sizeConfig[size];
 
     // Unique filter ID to avoid conflicts when multiple logos are rendered
-    const filterId = `cosmic-distortion-${size}`;
+    const filterId = `aether-distortion-${size}`;
 
     return (
         <div
@@ -103,4 +103,4 @@ const CosmicLogo: React.FC<CosmicLogoProps> = ({
     );
 };
 
-export default CosmicLogo;
+export default AetherLogo;
