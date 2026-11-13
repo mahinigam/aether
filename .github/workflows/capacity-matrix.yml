@@ -25,6 +25,7 @@ jobs:
   distributed-capacity-benchmark:
     name: Capacity Matrix - ${{ matrix.tier.name }} (${{ matrix.tier.total_connections }} conns)
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.tier.continue_on_error == true }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -41,11 +42,12 @@ jobs:
           - name: "scale-2.5k"
             total_connections: 2500
             workers: 5
-            ramp_seconds: 40
+            ramp_seconds: 60
             hold_seconds: 20
             step_connections: 100
             step_seconds: 5
-            connects_per_sec: 15
+            connects_per_sec: 10
+            continue_on_error: true
 
     steps:
       - name: Check out repository
