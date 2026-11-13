@@ -318,7 +318,7 @@ export async function getVerificationInfo(peerUserId: number): Promise<{
 
     const ownFingerprint = await e2eCryptoService.getOwnFingerprint();
     
-    let peerFingerprint: string | null = null;
+    const peerFingerprint: string | null = null;
     let safetyNumber: string | null = null;
     
     try {

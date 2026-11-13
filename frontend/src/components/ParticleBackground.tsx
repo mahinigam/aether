@@ -211,7 +211,7 @@ const ParticleBackground: React.FC = () => {
                 const isSidebar = p.x < 320;
 
                 // 1. Movement Logic
-                let speedMultiplier = isAwakening.current ? AWAKEN_SPEED_MULTIPLIER : 1;
+                const speedMultiplier = isAwakening.current ? AWAKEN_SPEED_MULTIPLIER : 1;
 
                 if (isSidebar) {
                     p.x += (p.vx * 0.5) * speedMultiplier;

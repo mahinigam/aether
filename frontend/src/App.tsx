@@ -40,7 +40,7 @@ function AnimatedRoutes() {
                     path="/"
                     element={
                         <PageWrapper>
-                            {!!localStorage.getItem('token') ? <Home /> : <Navigate to="/login" />}
+                            {localStorage.getItem('token') ? <Home /> : <Navigate to="/login" />}
                         </PageWrapper>
                     }
                 />
