@@ -45,7 +45,7 @@ services:
       - loadtest
     environment:
       WORKER_ID: "1"
-      BASE_USER_ID: 1000
+      BASE_USER_ID: 100
       TARGET_URL: ${TARGET_URL:-https://nginx:443}
       JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
       MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
@@ -69,7 +69,7 @@ services:
       - loadtest
     environment:
       WORKER_ID: "2"
-      BASE_USER_ID: 2000
+      BASE_USER_ID: 2100
       TARGET_URL: ${TARGET_URL:-https://nginx:443}
       JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
       MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
@@ -93,7 +93,7 @@ services:
       - loadtest
     environment:
       WORKER_ID: "3"
-      BASE_USER_ID: 3000
+      BASE_USER_ID: 4100
       TARGET_URL: ${TARGET_URL:-https://nginx:443}
       JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
       MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
@@ -117,7 +117,7 @@ services:
       - loadtest
     environment:
       WORKER_ID: "4"
-      BASE_USER_ID: 4000
+      BASE_USER_ID: 6100
       TARGET_URL: ${TARGET_URL:-https://nginx:443}
       JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
       MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
@@ -141,7 +141,7 @@ services:
       - loadtest
     environment:
       WORKER_ID: "5"
-      BASE_USER_ID: 5000
+      BASE_USER_ID: 8100
       TARGET_URL: ${TARGET_URL:-https://nginx:443}
       JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
       MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
@@ -158,5 +158,4 @@ services:
 
 networks:
   chat_network:
-    name: aether-donny_chat_network
     driver: bridge

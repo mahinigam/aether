@@ -19,6 +19,11 @@ class PresenceHandler {
             const serverInstanceId = process.env.SERVER_INSTANCE_ID || 'unknown';
 
             // Store session in database
+            const rawForwarded = socket.handshake.headers['x-forwarded-for'];
+            const clientIp = (typeof rawForwarded === 'string'
+                ? rawForwarded.split(',')[0].trim()
+                : socket.handshake.headers['x-real-ip']) || socket.handshake.address;
+
             try {
                 await Database.query(
                     `INSERT INTO user_sessions (user_id, socket_id, server_instance, user_agent, ip_address)
@@ -28,7 +33,7 @@ class PresenceHandler {
                         socket.id,
                         serverInstanceId,
                         socket.handshake.headers['user-agent'],
-                        socket.handshake.address,
+                        clientIp,
                     ]
                 );
             } catch (dbError: any) {

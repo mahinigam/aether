@@ -14,7 +14,16 @@ export const rateLimitMiddleware = async (
 ): Promise<void> => {
     try {
         const serverInstanceId = process.env.SERVER_INSTANCE_ID || 'default';
-        const ip = socket.handshake.address;
+        const rawForwarded = socket.handshake.headers['x-forwarded-for'];
+        const forwardedIp = Array.isArray(rawForwarded)
+            ? rawForwarded[0]
+            : typeof rawForwarded === 'string'
+            ? rawForwarded.split(',')[0].trim()
+            : null;
+        const realIp = typeof socket.handshake.headers['x-real-ip'] === 'string'
+            ? socket.handshake.headers['x-real-ip']
+            : null;
+        const ip = forwardedIp || realIp || socket.handshake.address;
 
         // Rate limit key per server instance
         const rateLimitKey = `connection:ratelimit:${serverInstanceId}`;

@@ -24,9 +24,12 @@ function main() {
     process.exit(1);
   }
 
-  const files = fs.readdirSync(artifactsDir)
-    .filter((file) => /^capacity-worker-.*\.json$/.test(file) || file === 'websocket-capacity-report.json')
-    .map((file) => path.join(artifactsDir, file));
+  const allFiles = fs.readdirSync(artifactsDir);
+  const workerFiles = allFiles.filter((file) => /^capacity-worker-.*\.json$/.test(file));
+  const candidateFiles = workerFiles.length > 0
+    ? workerFiles
+    : allFiles.filter((file) => file === 'websocket-capacity-report.json');
+  const files = candidateFiles.map((file) => path.join(artifactsDir, file));
 
   if (files.length === 0) {
     console.error(`No worker report JSON files found in ${artifactsDir}`);

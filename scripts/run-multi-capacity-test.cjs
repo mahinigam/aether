@@ -30,6 +30,7 @@ jwtSecret = jwtSecret || 'dev-jwt-secret-for-testing-only-replace-in-production'
 
 // Detect active Docker network
 function getDockerNetwork() {
+  if (process.env.DOCKER_NETWORK) return process.env.DOCKER_NETWORK;
   const res = spawnSync('docker', ['network', 'ls', '--format', '{{.Name}}'], { encoding: 'utf8' });
   const lines = (res.stdout || '').split('\n').map((s) => s.trim());
   const match = lines.find((n) => n.endsWith('chat_network'));
@@ -39,10 +40,18 @@ function getDockerNetwork() {
 async function main() {
   fs.mkdirSync(artifactsDir, { recursive: true });
 
-  // Clean prior worker reports
-  const priorReports = fs.readdirSync(artifactsDir).filter((f) => /^capacity-worker-.*\.json$/.test(f));
+  // Clean prior worker reports and summaries
+  const priorReports = fs.readdirSync(artifactsDir).filter((f) =>
+    /^capacity-worker-.*\.json$/.test(f) ||
+    f === 'high-scale-capacity-summary.json' ||
+    f === 'websocket-capacity-report.json'
+  );
   for (const f of priorReports) {
-    fs.unlinkSync(path.join(artifactsDir, f));
+    try {
+      fs.unlinkSync(path.join(artifactsDir, f));
+    } catch (_) {
+      // ignore unlink errors
+    }
   }
 
   const networkName = getDockerNetwork();
@@ -78,7 +87,7 @@ async function main() {
 
     const envArgs = [
       '-e', `WORKER_ID=${i}`,
-      '-e', `BASE_USER_ID=${i * 10000}`,
+      '-e', `BASE_USER_ID=${100 + (i - 1) * connsPerWorker}`,
       '-e', `TARGET_URL=${targetUrl}`,
       '-e', `JWT_SECRET=${jwtSecret}`,
       '-e', `MAX_CONNECTIONS=${connsPerWorker}`,

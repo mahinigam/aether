@@ -31,12 +31,14 @@ if (!explicitToken && !jwtSecret) {
   process.exit(2);
 }
 
-const defaultBaseUserId = workerId && !isNaN(Number(workerId)) ? Number(workerId) * 10000 : 100;
+const defaultBaseUserId = workerId && !isNaN(Number(workerId))
+  ? 100 + (Number(workerId) - 1) * maxConnections
+  : 100;
 const baseUserId = Number(process.env.BASE_USER_ID || defaultBaseUserId);
 
 function getToken(index) {
   if (explicitToken) return explicitToken;
-  const userId = multiUser ? baseUserId + (index % 1000) : baseUserId;
+  const userId = multiUser ? 100 + ((baseUserId - 100 + index) % 10000) : baseUserId;
   const username = multiUser ? `loaduser_${userId}` : `loaduser_${baseUserId}`;
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
   const payload = Buffer.from(JSON.stringify({ userId, username, iat: Math.floor(Date.now() / 1000) })).toString('base64url');

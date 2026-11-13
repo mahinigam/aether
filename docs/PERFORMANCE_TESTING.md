@@ -119,6 +119,24 @@ npm run aggregate:reports
 ### 4.3 GitHub Actions Capacity Matrix Workflow
 The `.github/workflows/capacity-matrix.yml` workflow automates distributed multi-container load testing across scale tiers using free GitHub Actions runners (`ubuntu-latest`).
 
+### 4.4 Verified Multi-Container Benchmark Evidence (1,000 Connections)
+
+| Metric | 1,000 Concurrent Connections (5 Workers) | Status |
+|---|---|---|
+| **Worker Containers** | 5 isolated Docker containers on bridged `chat_network` | **PASS** |
+| **Requested Connections** | 1,000 (200 per worker) | **PASS** |
+| **Successful Connections** | 1,000 (100.0%) | **PASS** |
+| **Active Connections at End of Hold** | 1,000 (100.0%) | **PASS** |
+| **Connection Errors** | 0 | **PASS** |
+| **Unexpected Disconnects** | 0 | **PASS** |
+| **Global Handshake Latency (min)** | 13.58 ms | **PASS** |
+| **Global Handshake Latency (p50)** | **707.75 ms** | **PASS** |
+| **Global Handshake Latency (p90)** | 1,613.31 ms | **PASS** |
+| **Global Handshake Latency (p95)** | **1,677.11 ms** | **PASS** |
+| **Global Handshake Latency (p99)** | 1,891.69 ms | **PASS** |
+| **Global Handshake Latency (max)** | 2,216.87 ms | **PASS** |
+| **Report Artifacts** | `artifacts/high-scale-capacity-summary.json`, `artifacts/capacity-worker-*.json` | **PASS** |
+
 ---
 
 ## 5. 10,000 Concurrent Connection Staging Guide

@@ -221,6 +221,17 @@ INSERT INTO users (username, email, password_hash, display_name) VALUES
 ('bob', 'bob@example.com', '$2b$10$dummyhash2', 'Bob Johnson'),
 ('charlie', 'charlie@example.com', '$2b$10$dummyhash3', 'Charlie Brown');
 
+-- Insert load test users for multi-container capacity testing (IDs 100 to 10100)
+INSERT INTO users (id, username, email, password_hash, display_name)
+SELECT 
+    i,
+    'loaduser_' || i,
+    'loaduser_' || i || '@test.local',
+    '$2b$10$testpasswordhashplaceholder',
+    'Load User ' || i
+FROM generate_series(100, 10100) AS i
+ON CONFLICT (id) DO NOTHING;
+
 -- Insert sample room (1-on-1 DM)
 INSERT INTO rooms (name, room_type, created_by) VALUES
 (NULL, 'direct', 1);
