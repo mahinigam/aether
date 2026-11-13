@@ -13,6 +13,7 @@ const rampSeconds = Number(process.env.RAMP_SECONDS || 120);
 const holdSeconds = Number(process.env.HOLD_SECONDS || 180);
 const stepConnections = Number(process.env.STEP_CONNECTIONS || 250);
 const stepSeconds = Number(process.env.STEP_SECONDS || 30);
+const connectsPerSecond = Number(process.env.CONNECTS_PER_SECOND || 15);
 const connectTimeoutMs = Number(process.env.CONNECT_TIMEOUT_MS || 15000);
 const token = process.env.ACCESS_TOKEN;
 const output = process.env.REPORT_PATH || path.join('artifacts', 'websocket-capacity-report.json');
@@ -25,9 +26,10 @@ if (!Number.isInteger(maxConnections) || maxConnections < 1 || maxConnections > 
   console.error('MAX_CONNECTIONS must be an integer from 1 to 10000.');
   process.exit(2);
 }
-if (![rampSeconds, holdSeconds, stepConnections, stepSeconds, connectTimeoutMs].every(Number.isFinite) ||
-    rampSeconds < 1 || holdSeconds < 1 || stepConnections < 1 || stepSeconds < 1) {
-  console.error('Ramp, hold, step and timeout values must be positive numbers.');
+if (![rampSeconds, holdSeconds, stepConnections, stepSeconds, connectTimeoutMs, connectsPerSecond].every(Number.isFinite) ||
+    rampSeconds < 1 || holdSeconds < 1 || stepConnections < 1 || stepSeconds < 1 ||
+    connectsPerSecond < 1 || connectsPerSecond > 20) {
+  console.error('Ramp, hold, step and timeout values must be positive; CONNECTS_PER_SECOND must be 1-20 to stay below the default production per-IP limiter.');
   process.exit(2);
 }
 
@@ -98,7 +100,7 @@ async function connectOne(index) {
 
 async function main() {
   console.log(JSON.stringify({
-    target, maxConnections, rampSeconds, holdSeconds, stepConnections, stepSeconds,
+    target, maxConnections, rampSeconds, holdSeconds, stepConnections, stepSeconds, connectsPerSecond,
     node: process.version, platform: process.platform, arch: process.arch,
     cpus: os.cpus().length, totalMemoryBytes: os.totalmem(),
   }, null, 2));
@@ -111,11 +113,24 @@ async function main() {
     const desired = Math.min(stage * stepConnections, maxConnections);
     const batch = desired - attempted;
     const batchStarted = performance.now();
-    const outcomes = await Promise.all(
-      Array.from({ length: batch }, (_, offset) => connectOne(attempted + offset))
-    );
+    let successCount = 0;
+    let stageAttempted = 0;
+    while (stageAttempted < batch) {
+      const groupSize = Math.min(connectsPerSecond, batch - stageAttempted);
+      const groupStart = performance.now();
+      const outcomes = await Promise.all(
+        Array.from({ length: groupSize }, (_, offset) =>
+          connectOne(attempted + stageAttempted + offset)
+        )
+      );
+      successCount += outcomes.filter(Boolean).length;
+      stageAttempted += groupSize;
+      if (stageAttempted < batch) {
+        const elapsedGroup = performance.now() - groupStart;
+        await sleep(Math.max(0, 1000 - elapsedGroup));
+      }
+    }
     attempted = desired;
-    const successCount = outcomes.filter(Boolean).length;
     const elapsed = performance.now() - batchStarted;
     stages.push({
       stage, attempted, connectedAtStage: connected,
@@ -123,9 +138,8 @@ async function main() {
       batchDurationMs: Math.round(elapsed),
     });
     console.log('[stage]', JSON.stringify(stages[stages.length - 1]));
-    if (attempted < maxConnections) {
-      const waitMs = Math.max(0, Math.min(stepSeconds * 1000, rampSeconds * 1000 / stageCount) - elapsed);
-      await sleep(waitMs);
+    if (attempted < maxConnections && elapsed < stepSeconds * 1000) {
+      await sleep(stepSeconds * 1000 - elapsed);
     }
   }
 
