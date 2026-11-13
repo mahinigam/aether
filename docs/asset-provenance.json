@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "localAssets": [
+    {
+      "path": "frontend/src/assets/logo.svg",
+      "kind": "svg-logo",
+      "status": "requires-owner-confirmation",
+      "finding": "The Git repository does not establish creator, source, or permission.",
+      "action": "Confirm original authorship or record source and licence."
+    },
+    {
+      "path": "frontend/src/index.css#embedded-1",
+      "kind": "embedded-svg-data-uri",
+      "status": "requires-owner-confirmation",
+      "finding": "Inline SVG visual texture; creator/source metadata absent.",
+      "action": "Confirm original authorship or replace with documented asset."
+    },
+    {
+      "path": "frontend/src/index.css#embedded-2",
+      "kind": "embedded-png-data-uri",
+      "status": "requires-owner-confirmation",
+      "finding": "Inline PNG visual texture; creator/source metadata absent.",
+      "action": "Confirm original authorship or replace with documented asset."
+    },
+    {
+      "path": "frontend/src/utils/notification.ts#embedded-1",
+      "kind": "embedded-audio-data-uri",
+      "status": "requires-owner-confirmation",
+      "finding": "Inline WAV notification tone. The source comment describes it as a simple beep but does not establish who created or licensed the waveform.",
+      "action": "Confirm original creation or replace it with a documented, appropriately licensed sound."
+    }
+  ],
+  "removedUnverifiedFiles": [
+    {
+      "path": "scripts/screenshot.png",
+      "reason": "Generated screenshot tracked without content provenance; regenerate from a reviewed controlled demo."
+    },
+    {
+      "path": "backend/uploads/1764185274606-988dcc2e-48a7-4e52-8955-f30d502d3039.jpeg",
+      "reason": "Runtime upload with no uploader/source/permission evidence."
+    },
+    {
+      "path": "backend/uploads/1764185288280-e2337a40-8f59-45d4-b759-81135238e079.jpeg",
+      "reason": "Runtime upload with no uploader/source/permission evidence."
+    },
+    {
+      "path": "backend/uploads/1768035184614-b87b3fb6-6c58-4795-88dd-770ce2708c4c.mp3",
+      "reason": "Runtime audio upload with no recording/composition rights evidence."
+    }
+  ],
+  "externalResources": [
+    {
+      "name": "Manrope",
+      "location": "frontend/index.html",
+      "license": "SIL Open Font License 1.1 (upstream)",
+      "url": "https://github.com/googlefonts/manrope",
+      "status": "upstream-identified"
+    },
+    {
+      "name": "GIPHY",
+      "location": "frontend/src/components/GifPicker.tsx",
+      "url": "https://developers.giphy.com/",
+      "status": "provider-terms-review-required"
+    },
+    {
+      "name": "Spotify Web API",
+      "location": "backend/src/routes/spotify.ts and frontend/src/services/spotify.ts",
+      "url": "https://developer.spotify.com/documentation/web-api",
+      "status": "provider-terms-review-required"
+    },
+    {
+      "name": "YouTube Data API",
+      "location": "frontend/src/services/spotify.ts",
+      "url": "https://developers.google.com/youtube/v3",
+      "status": "provider-terms-review-required"
+    },
+    {
+      "name": "OpenStreetMap tiles",
+      "location": "frontend/src/components/LocationPicker.tsx",
+      "url": "https://operations.osmfoundation.org/policies/tiles/",
+      "status": "tile-policy-review-required"
+    },
+    {
+      "name": "Leaflet marker images",
+      "location": "frontend/src/components/LocationPicker.tsx",
+      "status": "resolve-from-SBOM-and-upstream-package"
+    }
+  ],
+  "limitations": [
+    "Automated inventory cannot establish authorship or permission.",
+    "Package SBOMs do not replace review of bundled asset notices or API/provider terms.",
+    "The logo and embedded textures remain unverified pending owner confirmation."
+  ]
+}

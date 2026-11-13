@@ -19,7 +19,9 @@
     "lint:backend": "cd backend && npx eslint src --fix",
     "lint:frontend": "cd frontend && npx eslint src --fix",
     "typecheck:backend": "cd backend && npx tsc --noEmit",
-    "typecheck:frontend": "cd frontend && npx tsc --noEmit"
+    "typecheck:frontend": "cd frontend && npx tsc --noEmit",
+    "audit:assets": "node scripts/audit-assets.mjs --check",
+    "load:socketio": "node scripts/websocket-capacity-test.cjs"
   },
   "lint-staged": {
     "backend/src/**/*.ts": [

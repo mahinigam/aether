@@ -234,14 +234,18 @@ aether/
 
 ```bash
 # Clone the repository
-git clone https://github.com/mahinigam/chat-platform.git
-cd chat-platform
+git clone https://github.com/mahinigam/aether.git
+cd aether
 
-# Copy environment file
-cp backend/.env.example backend/.env
+# Create local secrets/config (never commit the resulting .env file)
+cp .env.example .env
+openssl rand -hex 32   # copy the output into JWT_SECRET in .env
+sh scripts/generate-dev-cert.sh
 
-# Start all services (scale backend to 4 instances)
-docker-compose up -d --scale backend=4
+# Start the local stack (single backend by default)
+docker compose up -d
+# For a multi-backend experiment, scale only after validating DB pool limits:
+docker compose up -d --scale backend=4
 
 # Access
 # Frontend: http://localhost
@@ -300,9 +304,9 @@ npm install
 npm test
 ```
 
-The `.github/workflows/verification.yml` workflow runs the backend and frontend test suites and their production builds on GitHub Actions. Each job uploads a `verification-results` artifact containing the command output logs. Open the repository's **Actions** tab, select a verification run, and download the artifact.
+The `.github/workflows/verification.yml` workflow runs the backend and frontend test suites and their production builds on GitHub Actions, plus a tracked-asset provenance check and SPDX dependency SBOM generation. Each job uploads a `verification-results` artifact containing the command output logs. Open the repository's **Actions** tab, select a verification run, and download the artifact.
 
-A passing CI run is evidence that the checked-in test suites and builds passed in that CI environment. It is not evidence of a 10,000-connection capacity test, a production deployment review, or an external security assessment.
+A passing CI run is evidence that the checked-in test suites and builds passed in that CI environment. It is not evidence of a 10,000-connection capacity test, a production deployment review, or an external security assessment. See [asset provenance](docs/ASSET_PROVENANCE.md) and the [WebSocket capacity test guide](docs/WEBSOCKET_CAPACITY_TEST.md).
 
 ---
 
