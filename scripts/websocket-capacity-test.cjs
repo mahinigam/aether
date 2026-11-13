@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { performance } = require('node:perf_hooks');
 const { io } = require('socket.io-client');
 
@@ -16,12 +17,24 @@ const stepSeconds = Number(process.env.STEP_SECONDS || 30);
 const connectsPerSecond = Number(process.env.CONNECTS_PER_SECOND || 15);
 const connectTimeoutMs = Number(process.env.CONNECT_TIMEOUT_MS || 15000);
 const effectiveConnectsPerSecond = Math.min(connectsPerSecond, Math.max(1, Math.ceil(maxConnections / rampSeconds)));
-const token = process.env.ACCESS_TOKEN;
+const explicitToken = process.env.ACCESS_TOKEN;
+const jwtSecret = process.env.JWT_SECRET || (explicitToken ? null : 'dev-jwt-secret-for-testing-only-replace-in-production');
+const multiUser = process.env.MULTI_USER !== 'false';
 const output = process.env.REPORT_PATH || path.join('artifacts', 'websocket-capacity-report.json');
 
-if (!token) {
-  console.error('ACCESS_TOKEN is required. Use a dedicated disposable test account.');
+if (!explicitToken && !jwtSecret) {
+  console.error('Either ACCESS_TOKEN or JWT_SECRET is required.');
   process.exit(2);
+}
+
+function getToken(index) {
+  if (explicitToken) return explicitToken;
+  const userId = multiUser ? 1000 + (index % 10000) : 1000;
+  const username = multiUser ? `loadtest_${userId}` : 'loadtest_shared';
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ userId, username, iat: Math.floor(Date.now() / 1000) })).toString('base64url');
+  const signature = crypto.createHmac('sha256', jwtSecret).update(`${header}.${payload}`).digest('base64url');
+  return `${header}.${payload}.${signature}`;
 }
 if (!Number.isInteger(maxConnections) || maxConnections < 1 || maxConnections > 10000) {
   console.error('MAX_CONNECTIONS must be an integer from 1 to 10000.');
@@ -59,8 +72,9 @@ async function connectOne(index) {
       upgrade: false,
       reconnection: false,
       timeout: connectTimeoutMs,
-      auth: { token },
+      auth: { token: getToken(index) },
       forceNew: true,
+      rejectUnauthorized: false,
     });
     sockets.push(socket);
     const start = performance.now();

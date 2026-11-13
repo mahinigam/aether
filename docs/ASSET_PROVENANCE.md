@@ -38,6 +38,8 @@ Removing files from the current branch does **not** erase their earlier Git obje
 
 A full history purge (for example, with `git filter-repo`) requires a coordinated force-push and recloning/rebasing of every active clone and branch. This change removes the files from the branch tip but does not rewrite repository history. Perform the history purge as a separately coordinated repository-administration operation if the key is considered sensitive or if repository access has broadened.
 
-## Dependency tree finding
+## Dependency tree finding and resolution
 
-The first CI SBOM attempt surfaced an existing npm peer-dependency inconsistency in the root dependency tree: `@opentelemetry/sdk-metrics@2.1.0` declares a compatible `@opentelemetry/api` range of `>=1.9.0 <1.10.0`, while the resolved root tree contains `@opentelemetry/api@1.4.1`. The audit workflow records this tree for review and generates CycloneDX output in force mode so the inventory can still be retained. This does not repair the dependency conflict; it should be resolved in a dedicated dependency update with regression tests before relying on the affected telemetry package.
+An earlier CI SBOM attempt surfaced an npm peer-dependency inconsistency in the root dependency tree: `@opentelemetry/sdk-metrics@2.1.0` declared a compatible `@opentelemetry/api` range of `>=1.9.0 <1.10.0`, while a transitive dependency resolved `@opentelemetry/api@1.4.1`.
+
+This peer-dependency mismatch has been cleanly resolved via an explicit root `overrides` entry (`"@opentelemetry/api": "^1.9.0"`) in the root `package.json` and a regenerated `package-lock.json`. The tree now cleanly validates with zero peer conflicts (`npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all` returns exit code 0). CycloneDX SBOM generation runs cleanly without requiring npm error bypass flags.

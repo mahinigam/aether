@@ -26,7 +26,8 @@
     "typecheck:backend": "cd backend && npx tsc --noEmit",
     "typecheck:frontend": "cd frontend && npx tsc --noEmit",
     "audit:assets": "node scripts/audit-assets.mjs --check",
-    "load:socketio": "node scripts/websocket-capacity-test.cjs"
+    "load:socketio": "node scripts/websocket-capacity-test.cjs",
+    "benchmark:messages": "node scripts/message-benchmark.cjs"
   },
   "lint-staged": {
     "backend/src/**/*.ts": [
