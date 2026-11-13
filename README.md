@@ -12,7 +12,7 @@
 
 ## Overview
 
-**Aether** is a production-grade, horizontally scalable real-time chat application. It is engineered to handle **10,000+ concurrent WebSocket connections** while maintaining a premium, distraction-free user experience.
+**Aether** is a real-time chat application built around a horizontally scalable architecture using Socket.io, Redis Pub/Sub, PostgreSQL, and NGINX. The original design records 10,000+ concurrent WebSocket connections as a capacity objective; this repository does not currently include a reproducible benchmark demonstrating that capacity.
 
 The UI follows the **Obsidian Chrome** design system — a monochrome, performance-first aesthetic that prioritizes restraint over visual noise.
 
@@ -26,6 +26,7 @@ The UI follows the **Obsidian Chrome** design system — a monochrome, performan
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [Local Development](#local-development)
+- [Testing and Verification](#testing-and-verification)
 - [API Reference](#api-reference)
 - [Performance](#performance)
 - [Security](#security)
@@ -40,7 +41,7 @@ The UI follows the **Obsidian Chrome** design system — a monochrome, performan
 ### Core Messaging
 | Feature | Description |
 |---------|-------------|
-| **Real-Time Messaging** | Sub-100ms delivery via Socket.io + Redis Pub/Sub |
+| **Real-Time Messaging** | Real-time delivery implemented with Socket.io + Redis Pub/Sub; latency has not been benchmarked in a retained report |
 | **Message Receipts** | Sent → Delivered → Read status indicators |
 | **Offline Support** | Messages queued and delivered on reconnection |
 | **Typing Indicators** | Debounced "User is typing..." with auto-stop |
@@ -283,6 +284,28 @@ psql -h localhost -U postgres -d chat_platform
 
 ---
 
+## Testing and Verification
+
+The repository currently includes 19 backend unit-test files, 3 backend integration-test files, and 4 frontend test files.
+
+Run the suites locally:
+
+```bash
+cd backend
+npm install
+npm test
+
+cd ../frontend
+npm install
+npm test
+```
+
+The `.github/workflows/verification.yml` workflow runs the backend and frontend test suites and their production builds on GitHub Actions. Each job uploads a `verification-results` artifact containing the command output logs. Open the repository's **Actions** tab, select a verification run, and download the artifact.
+
+A passing CI run is evidence that the checked-in test suites and builds passed in that CI environment. It is not evidence of a 10,000-connection capacity test, a production deployment review, or an external security assessment.
+
+---
+
 ## API Reference
 
 ### WebSocket Events
@@ -313,19 +336,21 @@ psql -h localhost -U postgres -d chat_platform
 
 ## Performance
 
-Aether applies industry-standard optimizations validated through Lighthouse auditing.
+Aether includes performance-oriented implementation choices. The figures below are historical project notes, not a newly generated Lighthouse report. No timestamped Lighthouse report is currently retained in this repository; reproduce the build and audit before treating the figures as verified.
 
-### Lighthouse Optimizations Applied
+### Performance-related implementation notes
 
 | Optimization | Technique | Impact |
 |-------------|-----------|--------|
-| **Code Splitting** | `React.lazy()` for pages & heavy components | Reduced initial bundle from 862KB → 299KB |
+| **Code Splitting** | `React.lazy()` for pages & heavy components | Implemented; current bundle sizes should be regenerated and archived |
 | **Lazy Loading** | Deferred loading of GifPicker, LocationPicker, OrbitSearch, ChatSearch | Only loads when user accesses feature |
 | **Skeleton Screens** | `MessageListSkeleton` during page transitions | Improved perceived load time |
 | **Preconnect Hints** | `<link rel="preconnect">` for Giphy, Spotify, YouTube APIs | Faster third-party asset loading |
-| **Static Assets** | Production build with minification | Gzipped bundles (~98KB main chunk) |
+| **Static Assets** | Production build with minification | Minified output; current output sizes should be regenerated and archived |
 
-### Bundle Analysis
+### Historical bundle analysis notes
+
+The following figures were recorded in earlier project notes. They are not a current build artifact and have not been independently reproduced as part of this repository update.
 
 ```
 index.js         299 KB (main bundle)
@@ -352,15 +377,17 @@ Aether implements a fail-safe hybrid search strategy to ensure availability:
 
 ### Theme Performance (Obsidian Chrome)
 
-| Principle | Implementation | GPU Impact |
+| Principle | Implementation | Evidence status |
 |-----------|----------------|------------|
-| No continuous animations | Removed `animate-pulse`, `repeat: Infinity` | ~0% idle |
-| State-driven motion only | Animations trigger on hover/interaction | Brief spike, returns to 0% |
-| Canvas particle halt | Stops after 3s of inactivity | Zero background GPU |
+| No continuous animations | Removed `animate-pulse`, `repeat: Infinity` | Intended to reduce idle work; no profiler result archived |
+| State-driven motion only | Animations trigger on hover/interaction | Interaction-driven design; not quantitatively profiled in a retained report |
+| Canvas particle halt | Stops after 3s of inactivity | Intended to stop particle work after inactivity; no GPU measurement archived |
 
-### Scalability Targets
+### Capacity planning estimates (not benchmark results)
 
-| Metric | Single Instance | 4 Instances (via Redis Adapter) |
+> **Measurement status:** The values below are illustrative estimates from the original design notes. The repository includes load-test definitions, but no retained run report demonstrating these throughput, memory, or connection figures. Treat them as hypotheses to validate, not measured capacity.
+
+| Metric | Single-instance estimate | Four-instance estimate (via Redis Adapter) |
 |--------|-----------------|----------------------------------|
 | Concurrent WebSocket Connections | ~2,500 | **10,000+** |
 | Messages/Second | ~1,000 | ~4,000 |
@@ -414,7 +441,7 @@ Aether implements a fail-safe hybrid search strategy to ensure availability:
 
 ## License
 
-MIT License. See [LICENSE](./LICENSE) for details.
+**No open-source licence is currently granted for Aether's original project materials.** The original source code, documentation, and designs are reserved to their rights holder unless a separate written licence says otherwise. See [LICENSE](./LICENSE) for the project rights notice. Third-party dependencies and external assets remain subject to their respective licences and terms.
 
 ---
 

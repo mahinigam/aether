@@ -1,5 +1,5 @@
 -- High-Scale Real-Time Chat Application - PostgreSQL Schema
--- Optimized for write-heavy loads with 10k concurrent connections
+-- Includes write-oriented indexes; concurrent-connection capacity is not established by the schema alone.
 
 -- ============================================
 -- USERS TABLE
