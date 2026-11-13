@@ -624,14 +624,14 @@ router.put('/profile', authenticateTokenHTTP, async (req: Request, res: Response
             return res.status(404).json({ error: 'User not found' });
         }
 
-        res.json({
+        return res.json({
             success: true,
             user: result.rows[0]
         });
 
     } catch (error) {
         console.error('Profile update error:', error);
-        res.status(500).json({ error: 'Failed to update profile' });
+        return res.status(500).json({ error: 'Failed to update profile' });
     }
 });
 
