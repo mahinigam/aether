@@ -97,15 +97,15 @@ jobs:
         run: npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all > dependency-peer-review.txt 2>&1 || true
 
       - name: Generate root dependency SBOM
-        run: npm sbom --sbom-format=spdx --package-lock-only --force --force > root-sbom.spdx.json
+        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file root-sbom.cdx.json
 
       - name: Generate backend dependency SBOM
         working-directory: backend
-        run: npm sbom --sbom-format=spdx --package-lock-only --force > ../backend-sbom.spdx.json
+        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file ../backend-sbom.cdx.json
 
       - name: Generate frontend dependency SBOM
         working-directory: frontend
-        run: npm sbom --sbom-format=spdx --package-lock-only --force > ../frontend-sbom.spdx.json
+        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file ../frontend-sbom.cdx.json
 
       - name: Retain supply-chain audit evidence
         if: always()
@@ -113,9 +113,9 @@ jobs:
         with:
           name: aether-supply-chain-audit
           path: |
-            root-sbom.spdx.json
-            backend-sbom.spdx.json
-            frontend-sbom.spdx.json
+            root-sbom.cdx.json
+            backend-sbom.cdx.json
+            frontend-sbom.cdx.json
             dependency-peer-review.txt
           if-no-files-found: warn
           retention-days: 90
