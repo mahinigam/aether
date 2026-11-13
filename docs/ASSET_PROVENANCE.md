@@ -37,3 +37,7 @@ The repository does not contain enough evidence to certify the authorship of the
 Removing files from the current branch does **not** erase their earlier Git objects. The previously committed `nginx/certs/nginx.key` therefore must be treated as exposed: do not reuse it, rotate any certificate/key material derived from it, and inspect deployments for reuse. The same applies to any secret ever committed to Git.
 
 A full history purge (for example, with `git filter-repo`) requires a coordinated force-push and recloning/rebasing of every active clone and branch. This change removes the files from the branch tip but does not rewrite repository history. Perform the history purge as a separately coordinated repository-administration operation if the key is considered sensitive or if repository access has broadened.
+
+## Dependency tree finding
+
+The first CI SBOM attempt surfaced an existing npm peer-dependency inconsistency in the root dependency tree: `@opentelemetry/sdk-metrics@2.1.0` declares a compatible `@opentelemetry/api` range of `>=1.9.0 <1.10.0`, while the resolved root tree contains `@opentelemetry/api@1.4.1`. The audit workflow records this tree for review and generates SPDX output in force mode so the inventory can still be retained. This does not repair the dependency conflict; it should be resolved in a dedicated dependency update with regression tests before relying on the affected telemetry package.
