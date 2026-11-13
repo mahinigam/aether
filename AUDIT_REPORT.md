@@ -1,8 +1,12 @@
 # Audit Report: High-Scale Real-Time Chat Application
 
+## Scope and status
+
+> **Historical point-in-time review:** This document records a static code/configuration review. It is not an external security assessment, production-readiness certification, or performance benchmark. In particular, it does not establish a tested 10,000-connection capacity. The test-suite note below reflected the repository state at the time of the original review; the current repository now contains backend unit/integration tests and frontend tests, and the GitHub Actions verification workflow runs them.
+
 ## Executive Summary
 
-Conducted comprehensive audit of the entire project codebase including backend, frontend, Docker configuration, and documentation. **Project is production-ready with minimal issues found.**
+The original review examined the backend, frontend, Docker configuration, and documentation for structural and configuration issues. Its findings should be read as a point-in-time engineering review, not as proof of production readiness.
 
 ## Issues Found and Fixed
 
@@ -86,7 +90,7 @@ These are not errors, but areas for future enhancement:
 
 3. **Logging**: Consider adding structured logging with Winston throughout the app (Winston is already a dependency).
 
-4. **Tests**: Add unit tests and integration tests (Jest is configured but no tests exist yet).
+4. **Tests**: The original review noted that tests were absent at that time. The current repository now contains backend unit and integration tests plus frontend tests. Their presence does not by itself prove they pass; use the GitHub Actions verification run and its retained logs as the current execution evidence.
 
 5. **Type Safety**: Some `any` types could be replaced with specific interfaces (e.g., in messageStore.ts).
 
@@ -121,7 +125,7 @@ These are not errors, but areas for future enhancement:
 
 ## Conclusion
 
-**Status**: **PRODUCTION-READY**
+**Status**: **Static review recorded; production readiness not certified**
 
 The project is well-structured with industry best practices:
 - Clean architecture with separation of concerns
@@ -131,16 +135,12 @@ The project is well-structured with industry best practices:
 - Docker containerization ready
 - Comprehensive documentation
 
-All critical issues have been fixed. The application is ready for:
-1. Local development with `docker-compose up`
-2. Horizontal scaling testing
-3. Load testing
-4. Production deployment (after changing secrets)
+This report records the reviewer's findings at the time of the audit. Before production use, run the current automated tests, validate secrets and environment configuration, complete staging checks, and perform security and load testing under a documented environment. No 10,000-connection result is asserted by this report.
 
 ## Next Steps
 
 1. Create `.env` files from `.env.example` templates
 2. Test locally with Docker
 3. Run load tests with Artillery
-4. Add unit/integration tests
-5. Deploy to staging environment
+4. Maintain and expand the existing automated test suites
+5. Deploy to staging and record reproducible performance and security test results

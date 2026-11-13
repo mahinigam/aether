@@ -156,7 +156,7 @@ function Home() {
     const [unlockedSessionRooms, setUnlockedSessionRooms] = useState<number[]>([]);
     const [isLockModalOpen, setIsLockModalOpen] = useState(false);
     const [lockTargetRoom, setLockTargetRoom] = useState<{ id: string; name: string } | null>(null);
-    const lockTimersRef = useRef<Map<number, NodeJS.Timeout>>(new Map());
+    const lockTimersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
     const prevSelectedRoomIdRef = useRef<number | null>(null);
 
     // Call State
