@@ -148,7 +148,7 @@ async function main() {
 
   receiverSockets.forEach((r) => {
     let lastSeq = 0;
-    r.socket.on('message:receive', (msg) => {
+    r.socket.on('message:new', (msg) => {
       const now = performance.now();
       r.receivedCount++;
       const seq = msg.metadata?.seq ?? null;
@@ -267,8 +267,8 @@ async function main() {
     },
     delivery: {
       messagesTransmitted: messageCount,
-      serverAcksReceived,
-      serverAcksFailed,
+      serverAcksReceived: senderAcksReceived,
+      serverAcksFailed: senderAcksFailed,
       expectedTotalDeliveries,
       actualTotalDeliveries,
       deliverySuccessRatePct,

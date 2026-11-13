@@ -27,10 +27,12 @@ if (!explicitToken && !jwtSecret) {
   process.exit(2);
 }
 
+const baseUserId = Number(process.env.BASE_USER_ID || 100);
+
 function getToken(index) {
   if (explicitToken) return explicitToken;
-  const userId = multiUser ? 1000 + (index % 10000) : 1000;
-  const username = multiUser ? `loadtest_${userId}` : 'loadtest_shared';
+  const userId = multiUser ? baseUserId + (index % 1000) : baseUserId;
+  const username = multiUser ? `loaduser_${userId}` : `loaduser_${baseUserId}`;
   const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
   const payload = Buffer.from(JSON.stringify({ userId, username, iat: Math.floor(Date.now() / 1000) })).toString('base64url');
   const signature = crypto.createHmac('sha256', jwtSecret).update(`${header}.${payload}`).digest('base64url');
