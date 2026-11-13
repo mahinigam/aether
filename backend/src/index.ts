@@ -130,6 +130,7 @@ import { initializeElasticsearchIndex } from './config/elasticsearch';
 
 // Declare global io
 declare global {
+    // eslint-disable-next-line no-var
     var io: any;
 }
 

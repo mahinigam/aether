@@ -14,7 +14,7 @@ import 'leaflet/dist/leaflet.css';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-let DefaultIcon = L.icon({
+const DefaultIcon = L.icon({
   iconUrl: icon,
   shadowUrl: iconShadow,
   iconSize: [25, 41],
@@ -135,7 +135,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, searchQuery, roomId,
             </svg>
           </a>
         );
-      case 'poll':
+      case 'poll': {
         const pollData = message.metadata;
         const totalVotes = pollData?.options.reduce((acc: number, opt: any) => acc + (opt.votes || 0), 0) || 0;
 
@@ -169,7 +169,8 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, searchQuery, roomId,
             </div>
           </div>
         );
-      case 'location':
+      }
+      case 'location': {
         const { lat, lng } = message.metadata || {};
         const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01}%2C${lat - 0.01}%2C${lng + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lng}`;
 
@@ -195,6 +196,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message, searchQuery, roomId,
             </a>
           </div>
         );
+      }
       case 'youtube':
         return (
           <ResonanceCard

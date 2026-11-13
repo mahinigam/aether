@@ -14,10 +14,15 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7"
   },
+  "overrides": {
+    "@opentelemetry/api": "^1.9.0"
+  },
   "scripts": {
     "prepare": "husky",
+    "lint": "npm run lint:backend && npm run lint:frontend",
     "lint:backend": "cd backend && npx eslint src --fix",
     "lint:frontend": "cd frontend && npx eslint src --fix",
+    "typecheck": "npm run typecheck:backend && npm run typecheck:frontend",
     "typecheck:backend": "cd backend && npx tsc --noEmit",
     "typecheck:frontend": "cd frontend && npx tsc --noEmit",
     "audit:assets": "node scripts/audit-assets.mjs --check",
