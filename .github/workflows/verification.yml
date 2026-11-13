@@ -13,7 +13,41 @@ on:
 permissions:
   contents: read
 
+env:
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+  PUPPETEER_SKIP_DOWNLOAD: "1"
+
 jobs:
+  lint-and-typecheck:
+    name: Linting and TypeScript verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript typecheck
+        run: npm run typecheck
+
   test-and-build:
     name: ${{ matrix.project }} tests and build
     runs-on: ubuntu-latest
@@ -74,14 +108,40 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
-  supply-chain-audit:
-    name: Asset provenance and dependency SBOM
+  docker-build-verification:
+    name: Docker image build verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: false
+          tags: aether-backend:ci
+
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: false
+          tags: aether-frontend:ci
+
+  security-and-supply-chain:
+    name: Security scan and supply-chain SBOM
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -89,12 +149,20 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Install root dependencies
+        run: npm ci
 
       - name: Check tracked asset provenance registry
         run: npm run audit:assets
 
-      - name: Record dependency tree peer conflicts
-        run: npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all > dependency-peer-review.txt 2>&1 || true
+      - name: Run Gitleaks secret detection
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/repo" zricethezav/gitleaks:latest detect --source="/repo" --verbose
+
+      - name: Verify dependency tree peer conflicts
+        run: |
+          npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all > dependency-peer-review.txt 2>&1
+          cat dependency-peer-review.txt
 
       - name: Generate root dependency SBOM
         run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file root-sbom.cdx.json
