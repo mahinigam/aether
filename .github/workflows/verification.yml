@@ -89,8 +89,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Install root dependencies
-        run: npm ci
 
       - name: Check tracked asset provenance registry
         run: npm run audit:assets
