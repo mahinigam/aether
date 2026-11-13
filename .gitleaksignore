@@ -1,0 +1,12 @@
+# Gitleaks ignore file for known historical findings documented in docs/GIT_HISTORY_PURGE_PROCEDURE.md
+# These historical commits are audited and documented for repository history purge.
+# Format: fingerprint strings (one per line)
+
+# Historical commit 6e99235: nginx.key previously removed in PR #2
+6e99235a2821f4c1b7dbf1598b1bf9cc6a906034:nginx/certs/nginx.key:private-key:1
+
+# Historical commit 458ce47: k8s/config.yaml placeholder dummy secret
+458ce47ceda89f444a88bd8acac6fc40cc8415f2:k8s/config.yaml:generic-api-key:22
+
+# Historical commit 3db307c: load-test.yml token previously removed in PR #2
+3db307cec453ce49a3f7cac369568a7fbf16d24f:load-test.yml:jwt:19
