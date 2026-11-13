@@ -21,6 +21,13 @@
       "status": "requires-owner-confirmation",
       "finding": "Inline PNG visual texture; creator/source metadata absent.",
       "action": "Confirm original authorship or replace with documented asset."
+    },
+    {
+      "path": "frontend/src/utils/notification.ts#embedded-1",
+      "kind": "embedded-audio-data-uri",
+      "status": "requires-owner-confirmation",
+      "finding": "Inline WAV notification tone. The source comment describes it as a simple beep but does not establish who created or licensed the waveform.",
+      "action": "Confirm original creation or replace it with a documented, appropriately licensed sound."
     }
   ],
   "removedUnverifiedFiles": [
