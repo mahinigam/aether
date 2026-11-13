@@ -10,7 +10,7 @@ A successful test/build run is evidence for the specific commit and runner only.
 
 The workflow runs `node scripts/audit-assets.mjs --check` to ensure every tracked media/font/document file and embedded data URI is registered in `docs/asset-provenance.json`. A clean structural audit does not prove ownership or licensing; entries marked `requires-owner-confirmation` remain human review items.
 
-It generates SPDX package SBOMs for root, backend, and frontend dependency trees and retains the JSON files as a workflow artifact. SBOM metadata is an inventory aid, not legal clearance.
+It generates CycloneDX package SBOMs for root, backend, and frontend dependency trees and retains the JSON files as a workflow artifact. SBOM metadata is an inventory aid, not legal clearance.
 
 ## WebSocket capacity testing
 
