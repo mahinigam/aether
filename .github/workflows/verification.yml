@@ -97,15 +97,15 @@ jobs:
         run: npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all > dependency-peer-review.txt 2>&1 || true
 
       - name: Generate root dependency SBOM
-        run: npm sbom --sbom-format=spdx --package-lock-only --force > root-sbom.spdx.json
+        run: npm sbom --sbom-format=spdx --package-lock-only --force --force > root-sbom.spdx.json
 
       - name: Generate backend dependency SBOM
         working-directory: backend
-        run: npm sbom --sbom-format=spdx --package-lock-only > ../backend-sbom.spdx.json
+        run: npm sbom --sbom-format=spdx --package-lock-only --force > ../backend-sbom.spdx.json
 
       - name: Generate frontend dependency SBOM
         working-directory: frontend
-        run: npm sbom --sbom-format=spdx --package-lock-only > ../frontend-sbom.spdx.json
+        run: npm sbom --sbom-format=spdx --package-lock-only --force > ../frontend-sbom.spdx.json
 
       - name: Retain supply-chain audit evidence
         if: always()
