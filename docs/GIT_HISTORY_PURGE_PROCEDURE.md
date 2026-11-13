@@ -144,7 +144,11 @@ Because commit SHAs will have changed:
 
 ## 7. Audit & Verification Trail
 
-After completing the force-push:
-1. Verify GitHub Actions runs clean on the new master HEAD.
-2. Run Gitleaks in CI to ensure 0 findings across the rewritten history.
-3. Remove the corresponding entries from `.gitleaksignore` if the commits no longer exist in the graph.
+### 7.1 Execution Record (Completed 2026-11-13)
+- **Protocol**: `git-filter-repo` (v2.47.0) executed with path inversion and secret token sanitization:
+  - Inverted paths: `nginx/certs/nginx.key`, `nginx/certs/nginx.crt`, `load-test.yml`
+  - Sanitized historical Base64 JWT token placeholder in `k8s/config.yaml` (`eW91ci...` -> `"REPLACE_WITH_SECURE_JWT_SECRET"`)
+- **Status of `.gitleaksignore`**: Permanently deleted. The repository requires zero exceptions or ignores.
+- **Verification Scan**: `gitleaks detect --verbose` executed across all commits in repository history.
+  - **Verdict**: 0 secret leaks found across 100% of commits.
+- **Upstream Convergence**: Remote origin synchronized via coordinated force-push (`git push origin --force master --tags`).
