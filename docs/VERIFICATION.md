@@ -1,77 +1,21 @@
-# Automated verification
+# Automated verification and retained evidence
 
-Aether contains automated test suites in the backend and frontend. This document
-describes how to run them and how to retain execution evidence.
+## Unit/integration tests and builds
 
-## Current test inventory
+The `Verification` workflow runs backend and frontend tests and production builds on pushes to `master` and `maintenance/**`, pull requests to `master`, and manual dispatch. It retains each project's test and build logs for 90 days.
 
-The repository currently contains:
+A successful test/build run is evidence for the specific commit and runner only. It is not a performance benchmark, security certification, or production-readiness claim.
 
-- 19 backend unit-test files
-- 3 backend integration-test files
-- 4 frontend test files
+## Asset provenance and dependency inventory
 
-These are source test files, not a claim that every test has passed in every
-environment.
+The workflow runs `node scripts/audit-assets.mjs --check` to ensure every tracked media/font/document file and embedded data URI is registered in `docs/asset-provenance.json`. A clean structural audit does not prove ownership or licensing; entries marked `requires-owner-confirmation` remain human review items.
 
-## Local commands
+It generates SPDX package SBOMs for root, backend, and frontend dependency trees and retains the JSON files as a workflow artifact. SBOM metadata is an inventory aid, not legal clearance.
 
-Run backend tests and build:
+## WebSocket capacity testing
 
-```bash
-cd backend
-npm ci
-npm test
-npm run build
-```
+See [WEBSOCKET_CAPACITY_TEST.md](WEBSOCKET_CAPACITY_TEST.md) for the staged Socket.IO capacity test, environment requirements, run command, report format, and interpretation limits. The 10,000-connection figure remains a design objective until a test against a measured deployment has succeeded and its report is retained.
 
-Run frontend tests and build:
+## TLS development certificate
 
-```bash
-cd frontend
-npm ci
-npm test
-npm run build
-```
-
-## GitHub Actions evidence
-
-The `Verification` workflow runs on pushes to `master` and
-`maintenance/**`, pull requests targeting `master`, and manual dispatch.
-It runs the backend and frontend test commands and their production builds
-separately. A Redis 7 service container is available to both jobs; the backend
-login/token tests use Redis-backed token storage.
-
-For each project, the workflow uploads `test.log` and `build.log` as a
-GitHub Actions artifact named:
-
-- `backend-verification-results`
-- `frontend-verification-results`
-
-Artifacts are retained for 90 days. To retrieve them, open the repository's
-**Actions** tab, select a workflow run, and download the relevant artifact.
-
-A log is evidence only for the specific commit, workflow run, runner, and
-environment that generated it. A successful unit/integration test run is not
-a load-test result, a security certification, or proof of production readiness.
-
-## Performance evidence
-
-The repository includes load-test definitions, including `load-test.yml` and
-`tests/load/load-test.js`. Those scripts describe test scenarios; their
-presence does not mean they have been executed successfully.
-
-Do not report a concurrency, throughput, latency, memory, or GPU result as
-measured until a reproducible run has been performed and its report retained.
-A useful report should record at least:
-
-- commit SHA and date
-- test tool and version
-- host/runner CPU, RAM, OS, and network
-- application topology and configuration
-- test duration, workload, and client count
-- success/error rates and latency percentiles
-- raw output and summary
-
-The 10,000-connection figure in the architecture is a design objective, not
-a currently demonstrated result.
+The repository no longer tracks a private key or certificate. Run `sh scripts/generate-dev-cert.sh` to create a local self-signed localhost certificate. It is for local development only and must never be used as production TLS identity.
