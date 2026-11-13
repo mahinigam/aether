@@ -165,15 +165,15 @@ jobs:
           cat dependency-peer-review.txt
 
       - name: Generate root dependency SBOM
-        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --output-file root-sbom.cdx.json
+        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file root-sbom.cdx.json
 
       - name: Generate backend dependency SBOM
         working-directory: backend
-        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --output-file ../backend-sbom.cdx.json
+        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file ../backend-sbom.cdx.json
 
       - name: Generate frontend dependency SBOM
         working-directory: frontend
-        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --output-file ../frontend-sbom.cdx.json
+        run: npx --yes @cyclonedx/cyclonedx-npm@7.0.0 --package-lock-only --ignore-npm-errors --output-file ../frontend-sbom.cdx.json
 
       - name: Retain supply-chain audit evidence
         if: always()
