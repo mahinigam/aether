@@ -73,3 +73,47 @@ jobs:
             ${{ matrix.project }}/build.log
           if-no-files-found: warn
           retention-days: 90
+
+  supply-chain-audit:
+    name: Asset provenance and dependency SBOM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Check tracked asset provenance registry
+        run: npm run audit:assets
+
+      - name: Generate root dependency SBOM
+        run: npm sbom --sbom-format=spdx --package-lock-only > root-sbom.spdx.json
+
+      - name: Generate backend dependency SBOM
+        working-directory: backend
+        run: npm sbom --sbom-format=spdx --package-lock-only > ../backend-sbom.spdx.json
+
+      - name: Generate frontend dependency SBOM
+        working-directory: frontend
+        run: npm sbom --sbom-format=spdx --package-lock-only > ../frontend-sbom.spdx.json
+
+      - name: Retain supply-chain audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aether-supply-chain-audit
+          path: |
+            root-sbom.spdx.json
+            backend-sbom.spdx.json
+            frontend-sbom.spdx.json
+          if-no-files-found: warn
+          retention-days: 90
