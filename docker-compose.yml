@@ -111,6 +111,10 @@ services:
       - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - backend
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       - chat_network
 
