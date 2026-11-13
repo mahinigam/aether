@@ -19,12 +19,14 @@ vi.mock('bcrypt', () => ({
     },
 }));
 
-vi.mock('../../src/utils/jwt', () => ({
-    generateTokenPair: vi.fn().mockReturnValue({
-        accessToken: 'integration-test-token',
-        refreshToken: 'integration-refresh-token',
-        expiresIn: 3600,
-    }),
+vi.mock('../../src/services/TokenService', () => ({
+    tokenService: {
+        generateTokenPair: vi.fn().mockResolvedValue({
+            accessToken: 'integration-test-token',
+            refreshToken: 'integration-refresh-token',
+            expiresIn: 3600,
+        }),
+    },
 }));
 
 import Database from '../../src/config/database';
