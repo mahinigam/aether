@@ -18,7 +18,7 @@ const poolConfig = {
 
     // Connection lifecycle
     idleTimeoutMillis: 30000, // Close idle connections after 30s
-    connectionTimeoutMillis: 2000, // Fail fast if can't connect
+    connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS || '10000'), // Fail fast if can't connect
 
     // Keep connections alive
     keepAlive: true,

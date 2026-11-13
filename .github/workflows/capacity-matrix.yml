@@ -107,6 +107,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
+      - name: Output container logs on failure
+        if: failure()
+        run: |
+          docker compose logs --tail 200 backend nginx postgres redis
+
       - name: Tear down stack
         if: always()
         run: docker compose down -v

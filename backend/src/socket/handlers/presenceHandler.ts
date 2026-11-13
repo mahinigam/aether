@@ -43,20 +43,36 @@ class PresenceHandler {
                     socket.emit('auth_error', { message: 'User not found. Please log in again.' });
                     throw new Error('User not found');
                 }
-                throw dbError;
+                console.warn(`Non-fatal DB error recording user session for user ${userId}:`, dbError?.message || dbError);
             }
 
             // Mark user as online in Redis
-            await RedisService.setUserOnline(userId, socket.id);
+            try {
+                await RedisService.setUserOnline(userId, socket.id);
+            } catch (redisError: any) {
+                console.warn(`Non-fatal Redis error setting user online for ${userId}:`, redisError?.message || redisError);
+            }
 
             // Join user to their rooms
-            await this.joinUserRooms(socket);
+            try {
+                await this.joinUserRooms(socket);
+            } catch (roomError: any) {
+                console.warn(`Non-fatal error joining rooms for user ${userId}:`, roomError?.message || roomError);
+            }
 
             // Deliver offline messages
-            await this.deliverOfflineMessages(socket);
+            try {
+                await this.deliverOfflineMessages(socket);
+            } catch (msgError: any) {
+                console.warn(`Non-fatal error delivering offline messages for user ${userId}:`, msgError?.message || msgError);
+            }
 
             // Broadcast user online status to their contacts
-            await this.broadcastPresence(socket, 'online');
+            try {
+                await this.broadcastPresence(socket, 'online');
+            } catch (presError: any) {
+                console.warn(`Non-fatal error broadcasting presence for user ${userId}:`, presError?.message || presError);
+            }
 
             console.log(`Presence initialized for user ${username} on ${serverInstanceId}`);
 
