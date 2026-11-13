@@ -1,0 +1,162 @@
+services:
+  # ============================================================================
+  # High-Scale Multi-Container Distributed Capacity Testing Architecture ($0.00)
+  #
+  # Deploys multiple worker client containers on Docker's internal bridged network.
+  # Each container has:
+  #   - Its own unique Linux network namespace and private IP (e.g. 172.19.0.x)
+  #   - Its own full 65,535 ephemeral port range
+  #   - Independent evaluation by backend/src/middleware/rateLimiter.ts
+  #
+  # Usage (Predefined 5-Worker Profile for 1,000 to 10,000 connections):
+  #   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml --profile loadtest up --abort-on-container-exit
+  #
+  # Usage (Dynamic Scale):
+  #   docker compose -f docker-compose.yml -f docker-compose.loadtest.yml up --scale client-worker=5 --abort-on-container-exit
+  # ============================================================================
+
+  client-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    image: aether-loadtest:latest
+    profiles:
+      - scale
+    environment:
+      TARGET_URL: ${TARGET_URL:-https://nginx:443}
+      JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
+      RAMP_SECONDS: ${RAMP_SECONDS:-20}
+      HOLD_SECONDS: ${HOLD_SECONDS:-15}
+      STEP_CONNECTIONS: ${STEP_CONNECTIONS:-50}
+      STEP_SECONDS: ${STEP_SECONDS:-5}
+      CONNECTS_PER_SECOND: ${CONNECTS_PER_SECOND:-15}
+    volumes:
+      - ./artifacts:/app/artifacts
+    networks:
+      - chat_network
+
+  client-worker-1:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    image: aether-loadtest:latest
+    profiles:
+      - loadtest
+    environment:
+      WORKER_ID: "1"
+      BASE_USER_ID: 1000
+      TARGET_URL: ${TARGET_URL:-https://nginx:443}
+      JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
+      RAMP_SECONDS: ${RAMP_SECONDS:-20}
+      HOLD_SECONDS: ${HOLD_SECONDS:-15}
+      STEP_CONNECTIONS: ${STEP_CONNECTIONS:-50}
+      STEP_SECONDS: ${STEP_SECONDS:-5}
+      CONNECTS_PER_SECOND: ${CONNECTS_PER_SECOND:-15}
+      REPORT_PATH: artifacts/capacity-worker-1.json
+    volumes:
+      - ./artifacts:/app/artifacts
+    networks:
+      - chat_network
+
+  client-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    image: aether-loadtest:latest
+    profiles:
+      - loadtest
+    environment:
+      WORKER_ID: "2"
+      BASE_USER_ID: 2000
+      TARGET_URL: ${TARGET_URL:-https://nginx:443}
+      JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
+      RAMP_SECONDS: ${RAMP_SECONDS:-20}
+      HOLD_SECONDS: ${HOLD_SECONDS:-15}
+      STEP_CONNECTIONS: ${STEP_CONNECTIONS:-50}
+      STEP_SECONDS: ${STEP_SECONDS:-5}
+      CONNECTS_PER_SECOND: ${CONNECTS_PER_SECOND:-15}
+      REPORT_PATH: artifacts/capacity-worker-2.json
+    volumes:
+      - ./artifacts:/app/artifacts
+    networks:
+      - chat_network
+
+  client-worker-3:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    image: aether-loadtest:latest
+    profiles:
+      - loadtest
+    environment:
+      WORKER_ID: "3"
+      BASE_USER_ID: 3000
+      TARGET_URL: ${TARGET_URL:-https://nginx:443}
+      JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
+      RAMP_SECONDS: ${RAMP_SECONDS:-20}
+      HOLD_SECONDS: ${HOLD_SECONDS:-15}
+      STEP_CONNECTIONS: ${STEP_CONNECTIONS:-50}
+      STEP_SECONDS: ${STEP_SECONDS:-5}
+      CONNECTS_PER_SECOND: ${CONNECTS_PER_SECOND:-15}
+      REPORT_PATH: artifacts/capacity-worker-3.json
+    volumes:
+      - ./artifacts:/app/artifacts
+    networks:
+      - chat_network
+
+  client-worker-4:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    image: aether-loadtest:latest
+    profiles:
+      - loadtest
+    environment:
+      WORKER_ID: "4"
+      BASE_USER_ID: 4000
+      TARGET_URL: ${TARGET_URL:-https://nginx:443}
+      JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
+      RAMP_SECONDS: ${RAMP_SECONDS:-20}
+      HOLD_SECONDS: ${HOLD_SECONDS:-15}
+      STEP_CONNECTIONS: ${STEP_CONNECTIONS:-50}
+      STEP_SECONDS: ${STEP_SECONDS:-5}
+      CONNECTS_PER_SECOND: ${CONNECTS_PER_SECOND:-15}
+      REPORT_PATH: artifacts/capacity-worker-4.json
+    volumes:
+      - ./artifacts:/app/artifacts
+    networks:
+      - chat_network
+
+  client-worker-5:
+    build:
+      context: .
+      dockerfile: Dockerfile.loadtest
+    image: aether-loadtest:latest
+    profiles:
+      - loadtest
+    environment:
+      WORKER_ID: "5"
+      BASE_USER_ID: 5000
+      TARGET_URL: ${TARGET_URL:-https://nginx:443}
+      JWT_SECRET: ${JWT_SECRET:-f6ad0c4a4cbd6f9a5434f2fef261a95e9d1d49ecde77a42ca11de0719e452f3a}
+      MAX_CONNECTIONS: ${MAX_CONNECTIONS_PER_WORKER:-200}
+      RAMP_SECONDS: ${RAMP_SECONDS:-20}
+      HOLD_SECONDS: ${HOLD_SECONDS:-15}
+      STEP_CONNECTIONS: ${STEP_CONNECTIONS:-50}
+      STEP_SECONDS: ${STEP_SECONDS:-5}
+      CONNECTS_PER_SECOND: ${CONNECTS_PER_SECOND:-15}
+      REPORT_PATH: artifacts/capacity-worker-5.json
+    volumes:
+      - ./artifacts:/app/artifacts
+    networks:
+      - chat_network
+
+networks:
+  chat_network:
+    name: aether-donny_chat_network
+    driver: bridge

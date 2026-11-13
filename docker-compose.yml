@@ -1,3 +1,6 @@
+include:
+  - docker-compose.loadtest.yml
+
 services:
   # ============================================
   # PostgreSQL Database

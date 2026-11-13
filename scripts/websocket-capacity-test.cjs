@@ -20,14 +20,19 @@ const effectiveConnectsPerSecond = Math.min(connectsPerSecond, Math.max(1, Math.
 const explicitToken = process.env.ACCESS_TOKEN;
 const jwtSecret = process.env.JWT_SECRET || (explicitToken ? null : 'dev-jwt-secret-for-testing-only-replace-in-production');
 const multiUser = process.env.MULTI_USER !== 'false';
-const output = process.env.REPORT_PATH || path.join('artifacts', 'websocket-capacity-report.json');
+const workerId = process.env.WORKER_ID || (process.env.HOSTNAME ? process.env.HOSTNAME.replace(/[^a-zA-Z0-9_-]/g, '') : null);
+const defaultReportPath = workerId
+  ? path.join('artifacts', `capacity-worker-${workerId}.json`)
+  : path.join('artifacts', 'websocket-capacity-report.json');
+const output = process.env.REPORT_PATH || defaultReportPath;
 
 if (!explicitToken && !jwtSecret) {
   console.error('Either ACCESS_TOKEN or JWT_SECRET is required.');
   process.exit(2);
 }
 
-const baseUserId = Number(process.env.BASE_USER_ID || 100);
+const defaultBaseUserId = workerId && !isNaN(Number(workerId)) ? Number(workerId) * 10000 : 100;
+const baseUserId = Number(process.env.BASE_USER_ID || defaultBaseUserId);
 
 function getToken(index) {
   if (explicitToken) return explicitToken;
@@ -183,6 +188,7 @@ async function main() {
   const report = {
     schemaVersion: 1,
     testType: 'Socket.IO WebSocket connection-capacity test',
+    workerId: workerId || 'default',
     result: errors.length === 0 && activeBeforeClose === connected ? 'pass' : 'degraded',
     warning: 'This result applies only to this target, commit, host, topology and test profile. It is not a general capacity guarantee.',
     target,
@@ -215,6 +221,7 @@ async function main() {
     },
     stages,
     errors: errors.slice(0, 200),
+    latencySamples: samples,
   };
 
   fs.mkdirSync(path.dirname(output), { recursive: true });

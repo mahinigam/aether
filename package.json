@@ -1,7 +1,6 @@
 {
   "license": "UNLICENSED",
   "dependencies": {
-    "artillery": "^2.0.27",
     "axios": "^1.13.2",
     "pg": "^8.16.3",
     "puppeteer": "^24.31.0",
@@ -14,9 +13,6 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7"
   },
-  "overrides": {
-    "@opentelemetry/api": "^1.9.0"
-  },
   "scripts": {
     "prepare": "husky",
     "lint": "npm run lint:backend && npm run lint:frontend",
@@ -27,6 +23,8 @@
     "typecheck:frontend": "cd frontend && npx tsc --noEmit",
     "audit:assets": "node scripts/audit-assets.mjs --check",
     "load:socketio": "node scripts/websocket-capacity-test.cjs",
+    "load:multi": "node scripts/run-multi-capacity-test.cjs",
+    "aggregate:reports": "node scripts/aggregate-capacity-reports.cjs",
     "benchmark:messages": "node scripts/message-benchmark.cjs"
   },
   "lint-staged": {

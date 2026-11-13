@@ -13,10 +13,6 @@ on:
 permissions:
   contents: read
 
-env:
-  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-  PUPPETEER_SKIP_DOWNLOAD: "1"
-
 jobs:
   lint-and-typecheck:
     name: Linting and TypeScript verification
@@ -161,7 +157,7 @@ jobs:
 
       - name: Verify dependency tree peer conflicts
         run: |
-          npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all > dependency-peer-review.txt 2>&1
+          npm ls --all > dependency-peer-review.txt 2>&1
           cat dependency-peer-review.txt
 
       - name: Generate root dependency SBOM
