@@ -82,15 +82,17 @@ async function down() {
     await client.end();
 }
 
-// Run migration
-up()
-    .then(() => {
-        console.log('✓ Constellations migration completed');
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error('Migration failed:', error);
-        process.exit(1);
-    });
+// Run migration if called directly
+if (require.main === module) {
+    up()
+        .then(() => {
+            console.log('✓ Constellations migration completed');
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error('Migration failed:', error);
+            process.exit(1);
+        });
+}
 
 module.exports = { up, down };
