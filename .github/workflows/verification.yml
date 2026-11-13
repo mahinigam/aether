@@ -93,8 +93,11 @@ jobs:
       - name: Check tracked asset provenance registry
         run: npm run audit:assets
 
+      - name: Record dependency tree peer conflicts
+        run: npm ls @opentelemetry/api @opentelemetry/sdk-metrics --all > dependency-peer-review.txt 2>&1 || true
+
       - name: Generate root dependency SBOM
-        run: npm sbom --sbom-format=spdx --package-lock-only > root-sbom.spdx.json
+        run: npm sbom --sbom-format=spdx --package-lock-only --force > root-sbom.spdx.json
 
       - name: Generate backend dependency SBOM
         working-directory: backend
@@ -113,5 +116,6 @@ jobs:
             root-sbom.spdx.json
             backend-sbom.spdx.json
             frontend-sbom.spdx.json
+            dependency-peer-review.txt
           if-no-files-found: warn
           retention-days: 90
