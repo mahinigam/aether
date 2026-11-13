@@ -31,3 +31,9 @@ The CI workflow generates SPDX package SBOMs for the root, backend, and frontend
 ## Remaining manual owner confirmations
 
 The repository does not contain enough evidence to certify the authorship of the logo and embedded textures. The owner should confirm these are original Aether work or replace/document them with assets whose rights are clear. This confirmation cannot be inferred by automation.
+
+## Git history and credential rotation
+
+Removing files from the current branch does **not** erase their earlier Git objects. The previously committed `nginx/certs/nginx.key` therefore must be treated as exposed: do not reuse it, rotate any certificate/key material derived from it, and inspect deployments for reuse. The same applies to any secret ever committed to Git.
+
+A full history purge (for example, with `git filter-repo`) requires a coordinated force-push and recloning/rebasing of every active clone and branch. This change removes the files from the branch tip but does not rewrite repository history. Perform the history purge as a separately coordinated repository-administration operation if the key is considered sensitive or if repository access has broadened.
