@@ -12,7 +12,7 @@
 
 ## System Overview
 
-This is a production-grade real-time chat application designed to handle **10,000 concurrent WebSocket connections** with horizontal scaling capabilities.
+This is a real-time chat application with a multi-instance architecture using Socket.io, the Redis Adapter, PostgreSQL, and NGINX. The original design uses 10,000 concurrent WebSocket connections as a capacity objective; this repository does not currently contain a reproducible benchmark proving that capacity.
 
 ### High-Level Architecture
 
@@ -228,7 +228,7 @@ io.on('connection', (socket) => {
 - `socket.io-request#/#` - Request/response pattern
 - Custom channels for presence and typing indicators
 
-### Scaling Test
+### Multi-instance deployment configuration (not a load benchmark)
 
 ```bash
 # Start with 4 backend instances
@@ -237,6 +237,8 @@ docker-compose up -d --scale backend=4
 # NGINX distributes connections using IP hash (sticky sessions)
 # Redis ensures cross-server message delivery
 ```
+
+This command exercises the multi-instance deployment configuration. Starting four instances does not measure concurrent connection capacity, message throughput, latency, or stability. No executed 10,000-client benchmark report is currently included in the repository.
 
 ---
 
@@ -342,7 +344,7 @@ sequenceDiagram
 
 ### The Problem
 
-When 10,000 users reconnect simultaneously (e.g., after server restart), the system faces:
+Hypothetical stress scenario: if 10,000 users reconnect simultaneously (for example, after a server restart), the system could face:
 - Database connection pool exhaustion
 - Redis overload
 - Memory spikes
@@ -352,7 +354,7 @@ When 10,000 users reconnect simultaneously (e.g., after server restart), the sys
 
 ```mermaid
 graph TD
-    A[10k Users Try to Reconnect] --> B[Strategy 1:<br/>Connection Rate Limiting]
+    A[Illustrative 10k-client reconnect scenario] --> B[Strategy 1:<br/>Connection Rate Limiting]
     B --> C[Max 100 connections/sec<br/>per server instance]
     C --> D[Strategy 2:<br/>Exponential Backoff]
     D --> E[1s → 2s → 4s → 8s delays]
@@ -392,7 +394,7 @@ export const rateLimitMiddleware = async (socket, next) => {
 };
 ```
 
-**Effect**: Limits new connections to 100/second per server. With 4 servers, total = 400/sec. 10,000 users reconnect over ~25 seconds instead of instantly.
+**Modelled effect, not an observed result**: At the configured limit of 100 new connections per second per server, four independently operating servers would have a theoretical aggregate limit of 400 per second. Dividing 10,000 attempts by that rate gives approximately 25 seconds of idealised admission time; real behaviour depends on load balancing, retries, database capacity, Redis, and network conditions.
 
 #### 2. Exponential Backoff with Jitter (Frontend)
 
@@ -474,14 +476,14 @@ const ipRateLimit = await RedisService.checkRateLimit(
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Users as 10,000 Users
+    participant Users as Illustrative 10,000-user scenario
     participant LB as NGINX<br/>Load Balancer
     participant S1 as Server 1
     participant S2 as Server 2
     participant Redis as Redis
     participant DB as PostgreSQL
 
-    Note over Users: Server restart...
+    Note over Users: Hypothetical server restart (scenario only)...
 
     Users->>LB: 10k reconnect requests
     LB->>S1: ~2,500 distributed
@@ -507,7 +509,7 @@ sequenceDiagram
         S1->>DB: Fetch next batch
     end
 
-    Note over Users,DB: After ~25 seconds,<br/>all 10k users connected gracefully
+    Note over Users,DB: Idealised model only;<br/>not an observed load-test result
 
     style Redis fill:#ff6b6b
     style DB fill:#4ecdc4
@@ -519,15 +521,19 @@ sequenceDiagram
 
 ### Bottlenecks and Optimizations
 
+> **Measurement status:** Quantitative capacity, throughput, latency, memory, and percentage figures in this document are design estimates or illustrative calculations unless explicitly accompanied by a dated test report. No retained benchmark report currently demonstrates the 10,000-connection objective. Load-test scripts are test definitions, not proof that a run passed.
+
 | Component | Bottleneck | Optimization | Impact |
 |-----------|-----------|--------------|--------|
-| **Database** | Write-heavy message inserts | Composite index (room_id, created_at), UUID IDs, no triggers | 10x faster writes |
-| **Redis** | Pub/Sub message volume | Efficient serialization, connection pooling | Handles 10k msg/sec |
-| **WebSocket** | Connection count | NGINX with ip_hash, rate limiting | 10k concurrent stable |
+| **Database** | Write-heavy message inserts | Composite index (room_id, created_at), UUID IDs, no triggers | Intended to reduce query and write overhead; speedup not measured |
+| **Redis** | Pub/Sub message volume | Efficient serialization, connection pooling | Designed for Pub/Sub fan-out; throughput not measured |
+| **WebSocket** | Connection count | NGINX with ip_hash, rate limiting | Horizontal-scaling path documented; connection capacity not measured |
 | **Memory** | Message history per room | Cursor pagination (50 at a time), Redis caching | Constant memory |
-| **Network** | Typing indicator spam | Debouncing (1 event/sec), auto-stop after 3s | 95% reduction |
+| **Network** | Typing indicator spam | Debouncing (1 event/sec), auto-stop after 3s | Intended to reduce redundant events; reduction not measured |
 
-### Scalability Metrics
+### Capacity planning estimates (not measured results)
+
+The following figures are retained as engineering assumptions from the design notes. They have not been established by a reproducible benchmark in this repository.
 
 **Single Server Instance**:
 - Max concurrent connections: ~2,500
@@ -541,12 +547,12 @@ sequenceDiagram
 - RAM usage: ~2GB total
 - CPU: 8 cores distributed
 
-**Database Performance**:
+**Database planning assumptions (not measured)**:
 - Write throughput: 5,000 inserts/sec (with indexes)
 - Read latency: <10ms (cursor pagination)
 - Storage growth: ~1GB per 1M messages
 
-**Redis Performance**:
+**Redis planning assumptions (not measured)**:
 - Pub/Sub latency: <5ms
 - Memory usage: ~100MB (for 10k sessions)
 - Throughput: 50,000 ops/sec
@@ -587,6 +593,6 @@ This architecture demonstrates **industry best practices** for building high-sca
 - **Optimistic UI**: Instant user feedback with server confirmation
 - **Efficient Pagination**: Cursor-based, not offset-based
 - **Real-Time Features**: Typing indicators, presence, read receipts
-- **Production-Ready**: Docker, health checks, graceful shutdown  
+- **Deployment building blocks**: Docker, health checks, and graceful shutdown; production readiness still requires environment-specific security, operational, and load testing.
 
-**Handles 10,000 concurrent connections with room to scale to 100,000+**
+**Capacity objective (not independently verified): 10,000 concurrent connections.** A 100,000+ connection figure is a future scaling aspiration only and has not been load-tested.
