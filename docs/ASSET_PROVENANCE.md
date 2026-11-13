@@ -26,7 +26,7 @@ These provider links are starting points, not a substitute for reviewing the cur
 
 ## Dependency inventory
 
-The CI workflow generates SPDX package SBOMs for the root, backend, and frontend npm dependency trees and retains them as workflow artifacts. An SBOM records package metadata; it does not itself resolve every licence exception, dual licence, bundled asset, trademark, patent, API term, or runtime content obligation. Review the SPDX licence expressions and package notices before distributing a build.
+The CI workflow generates CycloneDX package SBOMs for the root, backend, and frontend npm dependency trees and retains them as workflow artifacts. An SBOM records package metadata; it does not itself resolve every licence exception, dual licence, bundled asset, trademark, patent, API term, or runtime content obligation. Review the SPDX licence expressions and package notices before distributing a build.
 
 ## Remaining manual owner confirmations
 
@@ -40,4 +40,4 @@ A full history purge (for example, with `git filter-repo`) requires a coordinate
 
 ## Dependency tree finding
 
-The first CI SBOM attempt surfaced an existing npm peer-dependency inconsistency in the root dependency tree: `@opentelemetry/sdk-metrics@2.1.0` declares a compatible `@opentelemetry/api` range of `>=1.9.0 <1.10.0`, while the resolved root tree contains `@opentelemetry/api@1.4.1`. The audit workflow records this tree for review and generates SPDX output in force mode so the inventory can still be retained. This does not repair the dependency conflict; it should be resolved in a dedicated dependency update with regression tests before relying on the affected telemetry package.
+The first CI SBOM attempt surfaced an existing npm peer-dependency inconsistency in the root dependency tree: `@opentelemetry/sdk-metrics@2.1.0` declares a compatible `@opentelemetry/api` range of `>=1.9.0 <1.10.0`, while the resolved root tree contains `@opentelemetry/api@1.4.1`. The audit workflow records this tree for review and generates CycloneDX output in force mode so the inventory can still be retained. This does not repair the dependency conflict; it should be resolved in a dedicated dependency update with regression tests before relying on the affected telemetry package.
