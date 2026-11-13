@@ -39,7 +39,8 @@ npm run build
 The `Verification` workflow runs on pushes to `master` and
 `maintenance/**`, pull requests targeting `master`, and manual dispatch.
 It runs the backend and frontend test commands and their production builds
-separately.
+separately. A Redis 7 service container is available to both jobs; the backend
+login/token tests use Redis-backed token storage.
 
 For each project, the workflow uploads `test.log` and `build.log` as a
 GitHub Actions artifact named:
