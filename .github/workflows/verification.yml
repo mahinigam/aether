@@ -1,0 +1,65 @@
+name: Verification
+
+on:
+  push:
+    branches:
+      - master
+      - "maintenance/**"
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    name: ${{ matrix.project }} tests and build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - backend
+          - frontend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: npm ci
+
+      - name: Run automated tests
+        working-directory: ${{ matrix.project }}
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee test.log
+
+      - name: Build production bundle
+        working-directory: ${{ matrix.project }}
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run build 2>&1 | tee build.log
+
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project }}-verification-results
+          path: |
+            ${{ matrix.project }}/test.log
+            ${{ matrix.project }}/build.log
+          if-no-files-found: warn
+          retention-days: 90
