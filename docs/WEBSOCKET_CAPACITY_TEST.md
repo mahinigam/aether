@@ -30,7 +30,7 @@ export REPORT_PATH='artifacts/websocket-capacity-report.json'
 node scripts/websocket-capacity-test.cjs
 \`\`\`
 
-The test creates sockets in batches, records successful connection latency, checks for unexpected disconnects, holds the requested population, then closes all clients. A successful result requires all requested connections to establish and remain active through the hold interval with no observed connection errors or unexpected disconnects.
+The test creates sockets in staged batches and paces connection attempts to remain below Aether's default production per-IP connection limiter (20 attempts/second). The effective rate is capped by `CONNECTS_PER_SECOND` (default 15) and the requested ramp target. It records successful connection latency, checks for unexpected disconnects, holds the requested population, then closes all clients. A successful result requires all requested connections to establish and remain active through the hold interval with no observed connection errors or unexpected disconnects.
 
 For a safe smoke run, use \`MAX_CONNECTIONS=50\`, \`STEP_CONNECTIONS=10\`, \`RAMP_SECONDS=10\`, \`STEP_SECONDS=2\`, and \`HOLD_SECONDS=15\` first.
 
@@ -42,7 +42,7 @@ Also retain deployment-side telemetry for CPU, RSS/heap, event-loop lag, file de
 
 ## 4. Limits and evidence policy
 
-- A single-host test does not establish multi-node capacity.
+- A single-host test does not establish multi-node capacity. The default rate limiter allows 20 new socket connections per source IP per second and 100 per server instance per second; use a paced ramp or a coordinated set of authorised generators rather than disabling the production limiter.
 - Reusing one test account means it is not a test of unique-user registration, login, or per-user message throughput.
 - This script does not send messages; message throughput and delivery fan-out require a separate workload.
 - Do not extrapolate from 50, 500, or 1,000 connections to 10,000.
