@@ -42,7 +42,7 @@ Also retain deployment-side telemetry for CPU, RSS/heap, event-loop lag, file de
 
 ## 4. Limits and evidence policy
 
-- A single-host test does not establish multi-node capacity. The default rate limiter allows 20 new socket connections per source IP per second and 100 per server instance per second; use a paced ramp or a coordinated set of authorised generators rather than disabling the production limiter.
+- A single-host test does not establish multi-node capacity. Nginx currently uses `ip_hash`; a single load generator's clients can all be routed to the same backend, so do not interpret that setup as balanced multi-instance load. WebSocket-only tests can use a deliberately reviewed `least_conn` staging configuration or multiple authorised load-generator source IPs; polling fallback requires session affinity. The default rate limiter allows 20 new socket connections per source IP per second and 100 per server instance per second; use a paced ramp or a coordinated set of authorised generators rather than disabling the production limiter.
 - Reusing one test account means it is not a test of unique-user registration, login, or per-user message throughput.
 - This script does not send messages; message throughput and delivery fan-out require a separate workload.
 - Do not extrapolate from 50, 500, or 1,000 connections to 10,000.
