@@ -69,6 +69,14 @@ jobs:
           echo "NODE_ENV=production" >> .env
           cat .env
 
+      - name: Tune Linux host limits for high socket concurrency
+        run: |
+          sudo sysctl -w fs.file-max=2097152
+          sudo sysctl -w net.core.somaxconn=65535
+          sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+          sudo sysctl -w net.ipv4.tcp_tw_reuse=1
+          ulimit -n 65535 || true
+
       - name: Build and start Aether backend stack
         run: |
           docker compose up -d postgres redis backend nginx

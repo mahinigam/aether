@@ -103,6 +103,7 @@ async function main() {
       'run',
       '--name', containerName,
       '--network', networkName,
+      '--ulimit', 'nofile=65535:65535',
       '-v', `${artifactsDir}:/app/artifacts`,
       ...envArgs,
       'aether-loadtest:latest',
