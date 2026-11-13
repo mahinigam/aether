@@ -15,6 +15,7 @@ const stepConnections = Number(process.env.STEP_CONNECTIONS || 250);
 const stepSeconds = Number(process.env.STEP_SECONDS || 30);
 const connectsPerSecond = Number(process.env.CONNECTS_PER_SECOND || 15);
 const connectTimeoutMs = Number(process.env.CONNECT_TIMEOUT_MS || 15000);
+const effectiveConnectsPerSecond = Math.min(connectsPerSecond, Math.max(1, Math.ceil(maxConnections / rampSeconds)));
 const token = process.env.ACCESS_TOKEN;
 const output = process.env.REPORT_PATH || path.join('artifacts', 'websocket-capacity-report.json');
 
@@ -100,7 +101,7 @@ async function connectOne(index) {
 
 async function main() {
   console.log(JSON.stringify({
-    target, maxConnections, rampSeconds, holdSeconds, stepConnections, stepSeconds, connectsPerSecond,
+    target, maxConnections, rampSeconds, holdSeconds, stepConnections, stepSeconds, connectsPerSecond: effectiveConnectsPerSecond,
     node: process.version, platform: process.platform, arch: process.arch,
     cpus: os.cpus().length, totalMemoryBytes: os.totalmem(),
   }, null, 2));
@@ -116,7 +117,7 @@ async function main() {
     let successCount = 0;
     let stageAttempted = 0;
     while (stageAttempted < batch) {
-      const groupSize = Math.min(connectsPerSecond, batch - stageAttempted);
+      const groupSize = Math.min(effectiveConnectsPerSecond, batch - stageAttempted);
       const groupStart = performance.now();
       const outcomes = await Promise.all(
         Array.from({ length: groupSize }, (_, offset) =>
